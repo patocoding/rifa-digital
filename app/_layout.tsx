@@ -2,8 +2,14 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
-import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View } from 'react-native';
+import { supabase } from '../lib/supabase'; // Ajuste o caminho conforme necessário
+import Auth from '../components/Auth'; // Ajuste o caminho conforme necessário
+import Account from '../components/Account'; // Ajuste o caminho conforme necessário
+import { Session } from '@supabase/supabase-js';
+import Home from '../components/Home';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -24,6 +30,22 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    // Limpar o listener quando o componente for desmontado
+    return () => {
+      authListener?.unsubscribe();
+    };
+  }, []);
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
@@ -39,7 +61,13 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <View>
+      {session && session.user ? <RootLayoutNav/> : <Auth />}
+    </View>
+  );
+
+
 }
 
 function RootLayoutNav() {
@@ -50,6 +78,7 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+
       </Stack>
     </ThemeProvider>
   );
