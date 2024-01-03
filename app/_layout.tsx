@@ -4,12 +4,13 @@ import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import { supabase } from '../lib/supabase'; // Ajuste o caminho conforme necessário
 import Auth from '../components/Auth'; // Ajuste o caminho conforme necessário
 import Account from '../components/Account'; // Ajuste o caminho conforme necessário
 import { Session } from '@supabase/supabase-js';
 import Home from '../components/Home';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -62,24 +63,33 @@ export default function RootLayout() {
   }
 
   return (
-    <View>
-      {session && session.user ? <RootLayoutNav/> : <Auth />}
-    </View>
+     <SafeAreaProvider>
+      <View>
+        {session && session.user ? <RootLayoutNav/> : <Auth />}
+       </View>
+   </SafeAreaProvider>
   );
 
-
+  
 }
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <SafeAreaView>
+       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <>
+      <Text>
+        Dionizio gayyyyyyyyyyyysaddsasad
+      </Text>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-
-      </Stack>
-    </ThemeProvider>
+         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+       </Stack>
+    </>
+     </ThemeProvider>
+    </SafeAreaView>
+    
   );
 }
